@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <ToggleButton
+        android:id="@+id/toggleTestingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/testing" />
+
+    <TextView
+        android:id="@+id/statusTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toggleTestingButton"
+        android:layout_marginTop="16dp"
+        android:text="@string/status"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/ipAddressEditText"
+        android:layout_width="match_parent"
+        android:layout_height="82dp"
+        android:layout_below="@id/statusTextView"
+        android:layout_marginTop="8dp"
+        android:autofillHints=""
+        android:hint="@string/enter_ip_address"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ipAddressEditText"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:text="@string/start_sending_packets" />
+
+    <TextView
+        android:id="@+id/connectivityStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/startButton"
+        android:layout_marginTop="16dp"
+        android:text="" />
+
+    <LinearLayout
+        android:id="@+id/testingOptionsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/connectivityStatus"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <Spinner
+            android:id="@+id/testingOptionsSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:entries="@array/testing_options"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/startTestingButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/start_testing" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/statisticsButtonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/testingOptionsLayout"
+        android:layout_marginTop="150dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/gatherStatisticsButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/gather_network_statistics" />
+
+        <Button
+            android:id="@+id/exportStatisticsButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/export_network_statistics" />
+
+        <ToggleButton
+            android:id="@+id/isMainTesterToggleButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/is_main_tester" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/ipAddressTextView"
+        android:layout_width="234dp"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="45dp"
+        android:text="@string/determining_ip_address" />
+
+    <TextView
+        android:id="@+id/testResult"
+        android:layout_width="400dp"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:text="@string/waiting_for_test_results" />
+
+</RelativeLayout>
+
+

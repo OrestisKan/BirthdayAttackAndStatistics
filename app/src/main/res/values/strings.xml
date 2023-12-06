@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">BirthdayAttack</string>
+    <string name="enter_ip_address">Enter IP Address</string>
+    <string name="status">Status:</string>
+    <string name="start_sending_packets">Start Sending Packets</string>
+    <string name="bandwidth_measurement_unavailable">Bandwidth Measurement Unavailable</string>
+    <string name="testing">Testing</string>
+    <string name="start_testing">Start Testing</string>
+    <string name="gather_network_statistics">Gather Network Statistics</string>
+    <string name="export_network_statistics">Export Network Statistics</string>
+    <string name="start_packet_listener">Start Packet Listener</string>
+    <string name="is_main_tester">Is main Tester</string>
+    <string name="determining_ip_address">Determining IP Address..</string>
+    <string name="waiting_for_test_results">Waiting for Test Results</string>
+    <string-array name="testing_options">
+            <item>Calculate NAT Reset Time</item>
+            <item>Perform UDP Bandwidth Test</item>
+            <item>Measure Birthday Attack Time</item>
+            <item>Ping Pong</item>
+        </string-array>
+</resources>
