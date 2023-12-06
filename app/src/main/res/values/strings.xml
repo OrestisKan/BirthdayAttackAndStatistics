@@ -15,7 +15,7 @@
     <string-array name="testing_options">
             <item>Calculate NAT Reset Time</item>
             <item>Perform UDP Bandwidth Test</item>
-            <item>Measure Birthday Attack Time</item>
+            <item>Run 10 Birthday Attacks</item>
             <item>Ping Pong</item>
         </string-array>
 </resources>

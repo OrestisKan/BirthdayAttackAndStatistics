@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
 
     private var portsAttempted = mutableSetOf(0)
     private var succesfullConnections = mutableSetOf<InetSocketAddress>()
-    private val senderId = "Orestis1999"
+    private val senderId = "0"
 
     @Volatile
     private var isConnected = false
@@ -186,6 +186,9 @@ class MainActivity : AppCompatActivity() {
 
 
         startTestingButton.setOnClickListener {
+            //TODO SHOULD RESET ALL THE VARIABLES LIKE ISCONNECTED LASTUDPRECEIVED ETC
+            isConnected= false
+            lastUDPReceived = null
             val ipAddress = ipAddressEditText.text.toString()
             if (!isValidIpAddress(ipAddress)) {
                 Toast.makeText(this@MainActivity, "Please enter a valid IP Address", Toast.LENGTH_SHORT).show()
@@ -198,14 +201,14 @@ class MainActivity : AppCompatActivity() {
                 when(selectedTest) {
                     testingOptions[0] -> GlobalScope.launch {calculateResetTime(ipAddress)}
                     testingOptions[1] -> GlobalScope.launch {performUDPBandwidthTest(ipAddress ,  60)}
-                    testingOptions[2] -> {} //measureBirthdayAttackTime(ipAddress)
+                    testingOptions[2] -> GlobalScope.launch {runTenBirthdayAttacks(ipAddress)}
                     testingOptions[3] -> {} //startPingPong(connectedSocketAddress!!.address.hostAddress!!, connectedSocketAddress!!.port)
                 }
             }else {
                 when(selectedTest) {
                     testingOptions[0] -> calculateResetTimeReceiver(ipAddress)
                     testingOptions[1] -> performUDPBandwidthTestReceiver(ipAddress)
-                    testingOptions[2] -> {}
+                    testingOptions[2] -> GlobalScope.launch {runTenBirthdayAttacks(ipAddress)}
                     testingOptions[3] -> {}
                 }
             }
@@ -245,29 +248,32 @@ class MainActivity : AppCompatActivity() {
         pingPongManager = PingPongManager(PingPongManager.createPingPongListener())
     }
 
+    //TODO FIX!! DOESN'T STOP INSTANTLY WHEN MESSAGE IS RECEIVED!
     private fun startBirthdayAttack(ipAddress: String, packageType: PackageType = PackageType.CONNECTION_INITIATION) {
             isConnected = false
             udpExecutor.execute {
                 try {
                     var counter = 1
                     val address = InetAddress.getByName(ipAddress)
+                    println("Starting Birthday attack!")
                     while (!isConnected && counter < 170000) {
-                        val packetId = generateRandomString(10)
+                        val packetId = generateRandomString(3)
                         val packet = Packet(senderId, packetId, System.currentTimeMillis(), packageType, false, counter, null, null)
                         val udpBuffer = Packet.serialize(packet)
                         val port = getNextPortToTry(portsAttempted)
                         val udpPacket = DatagramPacket(udpBuffer, udpBuffer.size, address, port)
-                        println("Sending connection establishment packet to $address:$port   Attempt #$counter")
+//                        println("Sending connection establishment packet to $address:$port   Attempt #$counter")
                         udpSocket.send(udpPacket)
                         portsAttempted.add(port)
                         if (portsAttempted.size == 65536) portsAttempted = mutableSetOf(0)
                         counter++
                     }
+                    println("End of Birthday attack: Counter=$counter")
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
 //            }
-        }
+            }
     }
 
     override fun onStop() {
@@ -321,7 +327,7 @@ class MainActivity : AppCompatActivity() {
         val port = inetSocketAddress.port
         udpExecutor.execute {
             try {
-                val packetId = generateRandomString(12)
+                val packetId = generateRandomString(3)
                 val packet = Packet(senderId, packetId, System.currentTimeMillis(), PackageType.CONNECTION_MAINTENANCE, false,null, null, null)
                 val udpMaintenanceBuffer = Packet.serialize(packet)
                 val address = InetAddress.getByName(ipAddress)
@@ -357,7 +363,7 @@ class MainActivity : AppCompatActivity() {
         val packet = Packet.deserialize(datagramReceived.data)
         val receivedIP = datagramReceived.address
         val receivedPort = datagramReceived.port
-        lastUDPReceived = Triple(receivedIP.address.toString(), receivedPort, packet)
+        lastUDPReceived = Triple(receivedIP.hostAddress!!.toString(), receivedPort, packet)
 
         when (packet.packageType) {
             PackageType.CONNECTION_INITIATION -> {
@@ -365,7 +371,7 @@ class MainActivity : AppCompatActivity() {
                 succesfullConnections.add(InetSocketAddress(receivedIP, receivedPort))
                 val maintenancePacket = Packet(senderId, packet.packageId, System.currentTimeMillis(), PackageType.CONNECTION_ESTABLISHED, true, packet.count, null, null)
 
-                sendPacket(receivedIP.address.toString(), receivedPort, maintenancePacket)
+                sendPacket(receivedIP.hostAddress!!.toString(), receivedPort, maintenancePacket)
 
 
             }
@@ -422,7 +428,7 @@ class MainActivity : AppCompatActivity() {
     private suspend fun calculateResetTime(ipAddress: String) {
         val stepSize = 20 * 1000L
         var currentTime = 30 * 1000L
-        val packageId = generateRandomString(16)
+        val packageId = generateRandomString(3)
         var count = 1
         val packet = Packet(senderId, packageId, System.currentTimeMillis(), PackageType.TIMEOUT_MEASUREMENT, false, count, null, null) //todo this is wrong
 
@@ -439,7 +445,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         println("Successful birthday Attack!")
-        //todo sendan initial packagethere, cause the other is not stopping the birthday attack ???
 
         var isConverged = false
         while (currentTime < 15 * 60 * 1000) {
@@ -448,7 +453,7 @@ class MainActivity : AppCompatActivity() {
             sendPacket(lastUDPReceived!!.first, lastUDPReceived!!.second, packet)
             lastUDPReceived = null
             try {
-                withTimeout(5000) {
+                withTimeout(30000) {
                     waitToReceivePacket()
                 }
             }catch (_: TimeoutCancellationException) {
@@ -489,7 +494,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun timeoutMeasurementPacketReceived(ipAddress: String, port: Int, packetReceived: Packet) {
         if(!isMainTester){
-            val packageId = generateRandomString(16)
+            val packageId = generateRandomString(3)
             val packet = Packet(senderId, packageId, System.currentTimeMillis(), PackageType.TIMEOUT_MEASUREMENT, true, packetReceived.count, packetReceived.sentTimestamp, null)
             sendPacket(ipAddress, port, packet)
 
@@ -508,7 +513,7 @@ class MainActivity : AppCompatActivity() {
         // wait a sec or smth and send eveything else
 
         var counter =0
-        val packageId = generateRandomString(16)
+        val packageId = generateRandomString(3)
         var totalSize = 0
 
         startBirthdayAttack(ipAddress) //todo maybe randomly restart?
@@ -522,8 +527,6 @@ class MainActivity : AppCompatActivity() {
             }
             return
         }
-
-
 
         val endTime = System.currentTimeMillis() + (durationSec * 1000)
         while (System.currentTimeMillis() < endTime) {
@@ -539,6 +542,10 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private  fun performUDPBandwidthTestReceiver(ipAddress: String) {
+        startBirthdayAttack(ipAddress)
+    }
+
     //Measure time to perform a successful birthday attack
     private fun measureBirthdayAttackTime(ipAddress: String) {
         measurePerformanceInMS({time -> logTime(time) }){
@@ -546,13 +553,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private  fun performUDPBandwidthTestReceiver(ipAddress: String) {
-        startBirthdayAttack(ipAddress)
+    private suspend fun runTenBirthdayAttacks(ipAddress: String) {
+        for(i in 1..10) {
+            isConnected = false
+            lastUDPReceived = null
+            startBirthdayAttack(ipAddress)
+            delay(15000)
+        }
+        println("End of 10 birthday attacks!")
     }
 
 
-
-        //Network statistics
+    //todo test network statistics manager, possibly will be blocking
     private fun startCollectingNetworkStatistics() {
         networkStatisticsManager.startStatisticsCollection()
     }
