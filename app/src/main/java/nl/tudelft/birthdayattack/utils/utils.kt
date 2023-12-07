@@ -13,11 +13,6 @@ fun isValidIpAddress(ipAddress: String): Boolean {
 }
 
 
-fun isValidTimeoutMeasurementResponse(packetSend: Packet, packetReceived: Packet): Boolean {
-    //todo maybe do something with packageID?
-    return packetReceived.isResponse && packetReceived.receivedTimestamp == packetSend.sentTimestamp && packetReceived.packageType == PackageType.TIMEOUT_MEASUREMENT
-}
-
 fun generateRandomString(length: Int): String {
     val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9') // Add more characters as needed
     val random = Random()
@@ -31,8 +26,7 @@ fun getNextPortToTry(portsAttempted:MutableSet<Int>): Int { //Theoretically can 
     val range = 65535
 
     var random: Int = rand.nextInt(range) + 1
-//    println(portsAttempted.size)
-    while (portsAttempted.contains(random)) { //todo this runs out at some point or its just stack in the loop ?
+    while (portsAttempted.contains(random)) {
         random = rand.nextInt(range) + 1
     }
     return random

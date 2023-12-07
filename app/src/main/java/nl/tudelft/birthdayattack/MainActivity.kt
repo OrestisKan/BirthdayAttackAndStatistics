@@ -195,7 +195,6 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            println("didn't stop !!!!")
 
             if(isMainTester) {
                 when(selectedTest) {
@@ -558,7 +557,7 @@ class MainActivity : AppCompatActivity() {
             isConnected = false
             lastUDPReceived = null
             startBirthdayAttack(ipAddress)
-            delay(15000)
+            delay(20000)
         }
         println("End of 10 birthday attacks!")
     }
